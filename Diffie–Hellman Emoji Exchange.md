@@ -1,4 +1,5 @@
 # Diffie–Hellman Emoji Exchange.
+### Michael Asper ma53285
 
 ## Description:
 
@@ -105,10 +106,16 @@ Next is to take our key, 🐍🐍, and convert it to a 4x4 block.
         <td class="border-bottom border-left border-right">1</td>
         <td class="border-bottom border-right">2</td>
         <td class="border-bottom border-right">8</td>
-        <td class="border-bottom border-right"> </td>
+        <td class="border-bottom border-right">0</td>
     </tr>
     <tr>
-        <td class="border-bottom border-left border-right"></td>
+        <td class="border-bottom border-left border-right">1</td>
+        <td class="border-bottom border-right">3</td>
+        <td class="border-bottom border-right">1</td>
+        <td class="border-bottom border-right">2</td>
+    </tr>
+    <tr>
+        <td class="border-bottom border-left border-right">8</td>
         <td class="border-bottom border-right">0</td>
         <td class="border-bottom border-right">1</td>
         <td class="border-bottom border-right">3</td>
@@ -117,13 +124,7 @@ Next is to take our key, 🐍🐍, and convert it to a 4x4 block.
         <td class="border-bottom border-left border-right">1</td>
         <td class="border-bottom border-right">2</td>
         <td class="border-bottom border-right">8</td>
-        <td class="border-bottom border-right"> </td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right"></td>
         <td class="border-bottom border-right">0</td>
-        <td class="border-bottom border-right">1</td>
-        <td class="border-bottom border-right">3</td>
     </tr>
         <tr></tr>
 </table>
@@ -132,4 +133,60 @@ Next is to take our key, 🐍🐍, and convert it to a 4x4 block.
 ### Encrypting 
 For a block cipher, we need to xor each cell individually with the corresponding cell
 
-$Data \bigoplus Key=Ciphertext$
+$$Data \oplus Key=Ciphertext$$
+
+### Key Extension
+
+We need to make a lot more keys as we continue on XOR'ing the data, and to do that, we will take the last column of the block $c = [0,2,3,0]$. Afterwards, we take the column and run it through a s-box function, $S(x)$, such that it'll remap each byte to something else. $S(c) = [b1, 6e, 12, 8a]$. We will then XOR this with a constant determined by the round $[b1, 6e, 12, 8a] \oplus [01,00,00,00] = [b0, 6e,12,8a]$. Afterwards, we XOR the first column with this new obfuscated column.
+
+$$[1,1,8,1] \oplus [b1,63,12,8a]=[b0,62,1a,8b]$$
+
+
+#### New Key
+
+<table class="data-table">
+    <tr></tr>
+    <tr>
+        <td class="border-bottom border-left border-right">b0</td>
+        <td class="border-bottom border-right">2</td>
+        <td class="border-bottom border-right">8</td>
+        <td class="border-bottom border-right">0</td>
+    </tr>
+    <tr>
+        <td class="border-bottom border-left border-right">62</td>
+        <td class="border-bottom border-right">3</td>
+        <td class="border-bottom border-right">1</td>
+        <td class="border-bottom border-right">2</td>
+    </tr>
+    <tr>
+        <td class="border-bottom border-left border-right">1a</td>
+        <td class="border-bottom border-right">0</td>
+        <td class="border-bottom border-right">1</td>
+        <td class="border-bottom border-right">3</td>
+    </tr>
+    <tr>
+        <td class="border-bottom border-left border-right">8b</td>
+        <td class="border-bottom border-right">2</td>
+        <td class="border-bottom border-right">8</td>
+        <td class="border-bottom border-right">0</td>
+    </tr>
+        <tr></tr>
+</table>
+
+
+### Pseudocode
+~~~ python
+data = PLAIN_TEXT
+key = KEY
+for x in range(num_rounds):
+    data = block_xor(data,key)
+    key = next_round_key(key, s_box)
+
+ciphertext = data
+~~~
+
+Afterwards, we would have an encrypted block! ☺️  
+
+### Decrypting
+
+Since, the s-box function is completely invertible, we can reverse the the entire encryption with the key and doing everything in reverse. We would just have to set a predefined rounds ahead of time. 

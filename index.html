@@ -1,118 +1,161 @@
 <!doctype html><html><head><meta charset='utf-8'>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.4.1/github-markdown.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css">
-<link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/texmath.css">
-<link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/vscode-texmath.css">
-
-</head><body style="margin: 10%;" class="markdown-body">
-<h1 data-line="0" class="code-line" id="diffie%E2%80%93hellman-emoji-exchange">Diffie–Hellman Emoji Exchange.</h1>
-<h2 data-line="2" class="code-line" id="description">Description:</h2>
-<p data-line="4" class="code-line">The goal of the crypto is for Alice and Bob to share a secret together; however it is the year 2017; therefore our actors will be Kim and Kanye. Kim and Kanye are always in the public light, and such, there's always someone listening between their communication. For this situation, we'll assume Taylor is always listening between the communication of Kim and Kanye.</p>
-<p data-line="6" class="code-line">Now Kim and Kanye will publicly decide on a public emoji generator and a public prime emoji. They decide on the public prime emoji, 🐕, and the public emoji generator, 🙏. Since they are sharing this publicly, Taylor also knows about 🐕 and 🙏.</p>
-<p data-line="8" class="code-line">Afterwards, Kim and Kanye will both choose a secret emoji respectively. Kim chooses 🍑 and Kanye chooses 🐐. Kim sends 🙏 <sup> 🍑 </sup> mod 🐕 to Kanye. While Kanye sends 🙏 <sup> 🐐 </sup> mod 🐕 in return</p>
-<pre class="hljs"><code><div><span class="hljs-meta">&gt;&gt;&gt; </span>A = pow(ord(<span class="hljs-string">'🙏'</span>), ord(<span class="hljs-string">'🍑'</span>), ord(<span class="hljs-string">'🐕'</span>))
-<span class="hljs-number">73797</span>
-<span class="hljs-meta">&gt;&gt;&gt; </span>B = pow(ord(<span class="hljs-string">'🙏'</span>), ord(<span class="hljs-string">'🐐'</span>), ord(<span class="hljs-string">'🐕'</span>))
-<span class="hljs-number">97899</span>
-</div></code></pre>
-<p data-line="17" class="code-line">Taylor will of course have all of this information; however, Kim and Kanye can now use their private secrets.</p>
-<h3 data-line="19" class="code-line" id="kim">Kim</h3>
-<pre class="hljs"><code><div><span class="hljs-meta">&gt;&gt;&gt; </span>pow(<span class="hljs-number">97899</span>, ord(<span class="hljs-string">'🍑'</span>), ord(<span class="hljs-string">'🐕'</span>))
-<span class="hljs-number">40332</span>
-<span class="hljs-meta">&gt;&gt;&gt; </span>chr(<span class="hljs-number">40332</span>)
-鶌
-</div></code></pre>
-<h3 data-line="27" class="code-line" id="kanye">Kanye</h3>
-<pre class="hljs"><code><div><span class="hljs-meta">&gt;&gt;&gt; </span>pow(<span class="hljs-number">73797</span>, ord(<span class="hljs-string">'🐐'</span>), ord(<span class="hljs-string">'🐕'</span>))
-<span class="hljs-number">40332</span>
-<span class="hljs-meta">&gt;&gt;&gt; </span>chr(<span class="hljs-number">40332</span>)
-鶌
-</div></code></pre>
-<p data-line="35" class="code-line">They both now have access to a shared secret, 鶌, which Taylor will not be able to access easily. Of course, in a practical scenario, the prime emoji should be much larger such as 🌤😋 (which is 127780128523). We think 8-emojibit primes will be sufficient. One emojibit being one emoji, there a prime emoji with 8 emojis shall be sufficiently large e.g. 👏🦄🐀☃️🍔🚀🚟🚨 is a 8-emojibit number (not prime, it is 12807912941212800...). In version 2 of DHE key exchange, it should require a better map from emoji to number instead of using the Unicode code point as value.</p>
-<h2 data-line="37" class="code-line" id="symmetric-key-encryption">Symmetric key encryption</h2>
-<p data-line="39" class="code-line">Now that Kim and Kanye have a shared secret, which we will swap to 🐍🐍 as to encrypt using a block cipher, we will need at least a 2-emojibit key.</p>
-<p data-line="41" class="code-line">They will now be able to encrypt messages using a symmetric key encryption so Taylor can not ready any messages or files that Kanye will send to Kim.</p>
-<h2 data-line="43" class="code-line" id="%F0%9F%91%BB%F0%9F%93%A6%F0%9F%94%92-block-cipher">👻📦🔒 (Block cipher)</h2>
-<h3 data-line="45" class="code-line" id="data">Data</h3>
-<p data-line="47" class="code-line">Our message will be &quot;Kim get sum milk&quot; which will be sent by Kanye. We will represent the data as a 4x4 block.</p>
-<style>
-    .data-table {
-        border-collapse: collapse;
-    }
-    .border-top {
-        border: 1px solid #000;
-    }
-    .border-bottom {
-        border: 1px solid #000;
-    }
-    .border-left {
-        bordert: 1px solid #000;
-    }
-    .border-right {
-        bordert: 1px solid #000;
-    }
-</style>
-<table class="data-table">
-    <tr></tr>
-    <tr>
-        <td class="border-bottom border-left border-right">K</td>
-        <td class="border-bottom border-right">I</td>
-        <td class="border-bottom border-right">M</td>
-        <td class="border-bottom border-right"> </td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right">G</td>
-        <td class="border-bottom border-right">E</td>
-        <td class="border-bottom border-right">T</td>
-        <td class="border-bottom border-right"></td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right">S</td>
-        <td class="border-bottom border-right">U</td>
-        <td class="border-bottom border-right">M</td>
-        <td class="border-bottom border-right"> </td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right">M</td>
-        <td class="border-bottom border-right">I</td>
-        <td class="border-bottom border-right">L</td>
-        <td class="border-bottom border-right">K</td>
-    </tr>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.4.1/github-markdown.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css">
+    <link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/texmath.css">
+    <link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/vscode-texmath.css">
+    
+    </head><body class="markdown-body">
+    <h1 data-line="0" class="code-line" id="diffie%E2%80%93hellman-emoji-exchange">Diffie–Hellman Emoji Exchange.</h1>
+    <h3 data-line="1" class="code-line" id="michael-asper-ma53285">Michael Asper ma53285</h3>
+    <h2 data-line="3" class="code-line" id="description">Description:</h2>
+    <p data-line="5" class="code-line">The goal of the crypto is for Alice and Bob to share a secret together; however it is the year 2017; therefore our actors will be Kim and Kanye. Kim and Kanye are always in the public light, and such, there's always someone listening between their communication. For this situation, we'll assume Taylor is always listening between the communication of Kim and Kanye.</p>
+    <p data-line="7" class="code-line">Now Kim and Kanye will publicly decide on a public emoji generator and a public prime emoji. They decide on the public prime emoji, 🐕, and the public emoji generator, 🙏. Since they are sharing this publicly, Taylor also knows about 🐕 and 🙏.</p>
+    <p data-line="9" class="code-line">Afterwards, Kim and Kanye will both choose a secret emoji respectively. Kim chooses 🍑 and Kanye chooses 🐐. Kim sends 🙏 <sup> 🍑 </sup> mod 🐕 to Kanye. While Kanye sends 🙏 <sup> 🐐 </sup> mod 🐕 in return</p>
+    <pre class="hljs"><code><div><span class="hljs-meta">&gt;&gt;&gt; </span>A = pow(ord(<span class="hljs-string">'🙏'</span>), ord(<span class="hljs-string">'🍑'</span>), ord(<span class="hljs-string">'🐕'</span>))
+    <span class="hljs-number">73797</span>
+    <span class="hljs-meta">&gt;&gt;&gt; </span>B = pow(ord(<span class="hljs-string">'🙏'</span>), ord(<span class="hljs-string">'🐐'</span>), ord(<span class="hljs-string">'🐕'</span>))
+    <span class="hljs-number">97899</span>
+    </div></code></pre>
+    <p data-line="18" class="code-line">Taylor will of course have all of this information; however, Kim and Kanye can now use their private secrets.</p>
+    <h3 data-line="20" class="code-line" id="kim">Kim</h3>
+    <pre class="hljs"><code><div><span class="hljs-meta">&gt;&gt;&gt; </span>pow(<span class="hljs-number">97899</span>, ord(<span class="hljs-string">'🍑'</span>), ord(<span class="hljs-string">'🐕'</span>))
+    <span class="hljs-number">40332</span>
+    <span class="hljs-meta">&gt;&gt;&gt; </span>chr(<span class="hljs-number">40332</span>)
+    鶌
+    </div></code></pre>
+    <h3 data-line="28" class="code-line" id="kanye">Kanye</h3>
+    <pre class="hljs"><code><div><span class="hljs-meta">&gt;&gt;&gt; </span>pow(<span class="hljs-number">73797</span>, ord(<span class="hljs-string">'🐐'</span>), ord(<span class="hljs-string">'🐕'</span>))
+    <span class="hljs-number">40332</span>
+    <span class="hljs-meta">&gt;&gt;&gt; </span>chr(<span class="hljs-number">40332</span>)
+    鶌
+    </div></code></pre>
+    <p data-line="36" class="code-line">They both now have access to a shared secret, 鶌, which Taylor will not be able to access easily. Of course, in a practical scenario, the prime emoji should be much larger such as 🌤😋 (which is 127780128523). We think 8-emojibit primes will be sufficient. One emojibit being one emoji, there a prime emoji with 8 emojis shall be sufficiently large e.g. 👏🦄🐀☃️🍔🚀🚟🚨 is a 8-emojibit number (not prime, it is 12807912941212800...). In version 2 of DHE key exchange, it should require a better map from emoji to number instead of using the Unicode code point as value.</p>
+    <h2 data-line="38" class="code-line" id="symmetric-key-encryption">Symmetric key encryption</h2>
+    <p data-line="40" class="code-line">Now that Kim and Kanye have a shared secret, which we will swap to 🐍🐍 as to encrypt using a block cipher, we will need at least a 2-emojibit key.</p>
+    <p data-line="42" class="code-line">They will now be able to encrypt messages using a symmetric key encryption so Taylor can not ready any messages or files that Kanye will send to Kim.</p>
+    <h2 data-line="44" class="code-line" id="%F0%9F%91%BB%F0%9F%93%A6%F0%9F%94%92-block-cipher">👻📦🔒 (Block cipher)</h2>
+    <h3 data-line="46" class="code-line" id="data">Data</h3>
+    <p data-line="48" class="code-line">Our message will be &quot;Kim get sum milk&quot; which will be sent by Kanye. We will represent the data as a 4x4 block.</p>
+    <style>
+        .data-table {
+            border-collapse: collapse;
+        }
+        .border-top {
+            border: 1px solid #000;
+        }
+        .border-bottom {
+            border: 1px solid #000;
+        }
+        .border-left {
+            bordert: 1px solid #000;
+        }
+        .border-right {
+            bordert: 1px solid #000;
+        }
+    </style>
+    <table class="data-table">
         <tr></tr>
-</table>
-<h3 data-line="97" class="code-line" id="key">Key</h3>
-<p data-line="99" class="code-line">Next is to take our key, 🐍🐍, and convert it to a 4x4 block.</p>
-<table class="data-table">
-    <tr></tr>
-    <tr>
-        <td class="border-bottom border-left border-right">1</td>
-        <td class="border-bottom border-right">2</td>
-        <td class="border-bottom border-right">8</td>
-        <td class="border-bottom border-right"> </td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right"></td>
-        <td class="border-bottom border-right">0</td>
-        <td class="border-bottom border-right">1</td>
-        <td class="border-bottom border-right">3</td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right">1</td>
-        <td class="border-bottom border-right">2</td>
-        <td class="border-bottom border-right">8</td>
-        <td class="border-bottom border-right"> </td>
-    </tr>
-    <tr>
-        <td class="border-bottom border-left border-right"></td>
-        <td class="border-bottom border-right">0</td>
-        <td class="border-bottom border-right">1</td>
-        <td class="border-bottom border-right">3</td>
-    </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">K</td>
+            <td class="border-bottom border-right">I</td>
+            <td class="border-bottom border-right">M</td>
+            <td class="border-bottom border-right"> </td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">G</td>
+            <td class="border-bottom border-right">E</td>
+            <td class="border-bottom border-right">T</td>
+            <td class="border-bottom border-right"></td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">S</td>
+            <td class="border-bottom border-right">U</td>
+            <td class="border-bottom border-right">M</td>
+            <td class="border-bottom border-right"> </td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">M</td>
+            <td class="border-bottom border-right">I</td>
+            <td class="border-bottom border-right">L</td>
+            <td class="border-bottom border-right">K</td>
+        </tr>
+            <tr></tr>
+    </table>
+    <h3 data-line="98" class="code-line" id="key">Key</h3>
+    <p data-line="100" class="code-line">Next is to take our key, 🐍🐍, and convert it to a 4x4 block.</p>
+    <table class="data-table">
         <tr></tr>
-</table>
-<h3 data-line="131" class="code-line" id="encrypting">Encrypting</h3>
-<p data-line="132" class="code-line">For a block cipher, we need to xor each cell individually with the corresponding cell</p>
-<p data-line="134" class="code-line"><eq><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi><mo>⨁</mo><mi>K</mi><mi>e</mi><mi>y</mi><mo>=</mo><mi>C</mi><mi>i</mi><mi>p</mi><mi>h</mi><mi>e</mi><mi>r</mi><mi>t</mi><mi>e</mi><mi>x</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">Data \\bigoplus Key=Ciphertext</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1.00001em;vertical-align:-0.25001em;"></span><span class="base"><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mord mathit">a</span><span class="mord mathit">t</span><span class="mord mathit">a</span><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">⨁</span><span class="mord mathit" style="margin-right:0.07153em;">K</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mrel">=</span><span class="mord mathit" style="margin-right:0.07153em;">C</span><span class="mord mathit">i</span><span class="mord mathit">p</span><span class="mord mathit">h</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">t</span><span class="mord mathit">e</span><span class="mord mathit">x</span><span class="mord mathit">t</span></span></span></span></eq></p>
-
-</body></html>
+        <tr>
+            <td class="border-bottom border-left border-right">1</td>
+            <td class="border-bottom border-right">2</td>
+            <td class="border-bottom border-right">8</td>
+            <td class="border-bottom border-right">0</td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">1</td>
+            <td class="border-bottom border-right">3</td>
+            <td class="border-bottom border-right">1</td>
+            <td class="border-bottom border-right">2</td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">8</td>
+            <td class="border-bottom border-right">0</td>
+            <td class="border-bottom border-right">1</td>
+            <td class="border-bottom border-right">3</td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">1</td>
+            <td class="border-bottom border-right">2</td>
+            <td class="border-bottom border-right">8</td>
+            <td class="border-bottom border-right">0</td>
+        </tr>
+            <tr></tr>
+    </table>
+    <h3 data-line="132" class="code-line" id="encrypting">Encrypting</h3>
+    <p data-line="133" class="code-line">For a block cipher, we need to xor each cell individually with the corresponding cell</p>
+    <section><eqn><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>D</mi><mi>a</mi><mi>t</mi><mi>a</mi><mo>⊕</mo><mi>K</mi><mi>e</mi><mi>y</mi><mo>=</mo><mi>C</mi><mi>i</mi><mi>p</mi><mi>h</mi><mi>e</mi><mi>r</mi><mi>t</mi><mi>e</mi><mi>x</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">Data \\oplus Key=Ciphertext</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.69444em;"></span><span class="strut bottom" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="base"><span class="mord mathit" style="margin-right:0.02778em;">D</span><span class="mord mathit">a</span><span class="mord mathit">t</span><span class="mord mathit">a</span><span class="mbin">⊕</span><span class="mord mathit" style="margin-right:0.07153em;">K</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.03588em;">y</span><span class="mrel">=</span><span class="mord mathit" style="margin-right:0.07153em;">C</span><span class="mord mathit">i</span><span class="mord mathit">p</span><span class="mord mathit">h</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">t</span><span class="mord mathit">e</span><span class="mord mathit">x</span><span class="mord mathit">t</span></span></span></span></span></eqn></section><h3 data-line="137" class="code-line" id="key-extension">Key Extension</h3>
+    <p data-line="139" class="code-line">We need to make a lot more keys as we continue on XOR'ing the data, and to do that, we will take the last column of the block <eq><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>c</mi><mo>=</mo><mo>[</mo><mn>0</mn><mo separator="true">,</mo><mn>2</mn><mo separator="true">,</mo><mn>3</mn><mo separator="true">,</mo><mn>0</mn><mo>]</mo></mrow><annotation encoding="application/x-tex">c = [0,2,3,0]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base"><span class="mord mathit">c</span><span class="mrel">=</span><span class="mopen">[</span><span class="mord mathrm">0</span><span class="mpunct">,</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">3</span><span class="mpunct">,</span><span class="mord mathrm">0</span><span class="mclose">]</span></span></span></span></eq>. Afterwards, we take the column and run it through a s-box function, <eq><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>S</mi><mo>(</mo><mi>x</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">S(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base"><span class="mord mathit" style="margin-right:0.05764em;">S</span><span class="mopen">(</span><span class="mord mathit">x</span><span class="mclose">)</span></span></span></span></eq>, such that it'll remap each byte to something else. <eq><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>S</mi><mo>(</mo><mi>c</mi><mo>)</mo><mo>=</mo><mo>[</mo><mi>b</mi><mn>1</mn><mo separator="true">,</mo><mn>6</mn><mi>e</mi><mo separator="true">,</mo><mn>1</mn><mn>2</mn><mo separator="true">,</mo><mn>8</mn><mi>a</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">S(c) = [b1, 6e, 12, 8a]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base"><span class="mord mathit" style="margin-right:0.05764em;">S</span><span class="mopen">(</span><span class="mord mathit">c</span><span class="mclose">)</span><span class="mrel">=</span><span class="mopen">[</span><span class="mord mathit">b</span><span class="mord mathrm">1</span><span class="mpunct">,</span><span class="mord mathrm">6</span><span class="mord mathit">e</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">8</span><span class="mord mathit">a</span><span class="mclose">]</span></span></span></span></eq>. We will then XOR this with a constant determined by the round <eq><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>[</mo><mi>b</mi><mn>1</mn><mo separator="true">,</mo><mn>6</mn><mi>e</mi><mo separator="true">,</mo><mn>1</mn><mn>2</mn><mo separator="true">,</mo><mn>8</mn><mi>a</mi><mo>]</mo><mo>⊕</mo><mo>[</mo><mn>0</mn><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mn>0</mn><mo separator="true">,</mo><mn>0</mn><mn>0</mn><mo>]</mo><mo>=</mo><mo>[</mo><mi>b</mi><mn>0</mn><mo separator="true">,</mo><mn>6</mn><mi>e</mi><mo separator="true">,</mo><mn>1</mn><mn>2</mn><mo separator="true">,</mo><mn>8</mn><mi>a</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">[b1, 6e, 12, 8a] \\oplus [01,00,00,00] = [b0, 6e,12,8a]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base"><span class="mopen">[</span><span class="mord mathit">b</span><span class="mord mathrm">1</span><span class="mpunct">,</span><span class="mord mathrm">6</span><span class="mord mathit">e</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">8</span><span class="mord mathit">a</span><span class="mclose">]</span><span class="mbin">⊕</span><span class="mopen">[</span><span class="mord mathrm">0</span><span class="mord mathrm">1</span><span class="mpunct">,</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span><span class="mpunct">,</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span><span class="mpunct">,</span><span class="mord mathrm">0</span><span class="mord mathrm">0</span><span class="mclose">]</span><span class="mrel">=</span><span class="mopen">[</span><span class="mord mathit">b</span><span class="mord mathrm">0</span><span class="mpunct">,</span><span class="mord mathrm">6</span><span class="mord mathit">e</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">8</span><span class="mord mathit">a</span><span class="mclose">]</span></span></span></span></eq>. Afterwards, we XOR the first column with this new obfuscated column.</p>
+    <section><eqn><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>[</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo separator="true">,</mo><mn>8</mn><mo separator="true">,</mo><mn>1</mn><mo>]</mo><mo>⊕</mo><mo>[</mo><mi>b</mi><mn>1</mn><mo separator="true">,</mo><mn>6</mn><mn>3</mn><mo separator="true">,</mo><mn>1</mn><mn>2</mn><mo separator="true">,</mo><mn>8</mn><mi>a</mi><mo>]</mo><mo>=</mo><mo>[</mo><mi>b</mi><mn>0</mn><mo separator="true">,</mo><mn>6</mn><mn>2</mn><mo separator="true">,</mo><mn>1</mn><mi>a</mi><mo separator="true">,</mo><mn>8</mn><mi>b</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">[1,1,8,1] \\oplus [b1,63,12,8a]=[b0,62,1a,8b]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.75em;"></span><span class="strut bottom" style="height:1em;vertical-align:-0.25em;"></span><span class="base"><span class="mopen">[</span><span class="mord mathrm">1</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mpunct">,</span><span class="mord mathrm">8</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mclose">]</span><span class="mbin">⊕</span><span class="mopen">[</span><span class="mord mathit">b</span><span class="mord mathrm">1</span><span class="mpunct">,</span><span class="mord mathrm">6</span><span class="mord mathrm">3</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">8</span><span class="mord mathit">a</span><span class="mclose">]</span><span class="mrel">=</span><span class="mopen">[</span><span class="mord mathit">b</span><span class="mord mathrm">0</span><span class="mpunct">,</span><span class="mord mathrm">6</span><span class="mord mathrm">2</span><span class="mpunct">,</span><span class="mord mathrm">1</span><span class="mord mathit">a</span><span class="mpunct">,</span><span class="mord mathrm">8</span><span class="mord mathit">b</span><span class="mclose">]</span></span></span></span></span></eqn></section><h4 data-line="144" class="code-line" id="new-key">New Key</h4>
+    <table class="data-table">
+        <tr></tr>
+        <tr>
+            <td class="border-bottom border-left border-right">b0</td>
+            <td class="border-bottom border-right">2</td>
+            <td class="border-bottom border-right">8</td>
+            <td class="border-bottom border-right">0</td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">62</td>
+            <td class="border-bottom border-right">3</td>
+            <td class="border-bottom border-right">1</td>
+            <td class="border-bottom border-right">2</td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">1a</td>
+            <td class="border-bottom border-right">0</td>
+            <td class="border-bottom border-right">1</td>
+            <td class="border-bottom border-right">3</td>
+        </tr>
+        <tr>
+            <td class="border-bottom border-left border-right">8b</td>
+            <td class="border-bottom border-right">2</td>
+            <td class="border-bottom border-right">8</td>
+            <td class="border-bottom border-right">0</td>
+        </tr>
+            <tr></tr>
+    </table>
+    <h3 data-line="176" class="code-line" id="pseudocode">Pseudocode</h3>
+    <pre class="hljs"><code><div>data = PLAIN_TEXT
+    key = KEY
+    <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> range(num_rounds):
+        data = block_xor(data,key)
+        key = next_round_key(key, s_box)
+    
+    ciphertext = data
+    </div></code></pre>
+    <p data-line="187" class="code-line">Afterwards, we would have an encrypted block! ☺️</p>
+    <h3 data-line="189" class="code-line" id="decrypting">Decrypting</h3>
+    <p data-line="191" class="code-line">Since, the s-box function is completely invertible, we can reverse the the entire encryption with the key and doing everything in reverse. We would just have to set a predefined rounds ahead of time.</p>
+    
+    </body></html>
